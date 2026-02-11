@@ -12,7 +12,7 @@ import InputForm from './InputForm';
 import CurrentMetadata from './CurrentMetadata';
 import VariationCard from './VariationCard';
 
-const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5678';
+const API_URL = import.meta.env.VITE_API_URL || '';
 
 function App() {
   const [url, setUrl] = useState('');

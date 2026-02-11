@@ -48,28 +48,19 @@ npm install
 cp .env.example .env.local
 ```
 
-Edit `.env.local` to set your n8n API URL (default: `http://localhost:5678`)
+Edit `.env.local` and set `N8N_URL` if your n8n instance isn't on the default port 5678.
 
-### Critical: n8n CORS Configuration
+### Dev Server Proxy (CORS)
 
-Before testing the frontend, **you MUST configure CORS in your n8n workflow**. Add an OPTIONS webhook handler:
+During development, Vite's built-in proxy forwards all `/webhook` requests to your n8n instance. Because the browser sends these as same-origin requests to `http://localhost:5173`, no CORS preflight (OPTIONS) is triggered — **no special n8n configuration is required**.
 
-1. In your n8n workflow editor
-2. Create a new **Webhook** node
-3. Configure it as:
-   - **HTTP Method**: OPTIONS
-   - **Path**: `/seo-metadata-agent` (same as POST webhook)
-4. Connect a **Respond to Webhook** node
-5. Set the following headers:
-   ```
-   Access-Control-Allow-Origin: *
-   Access-Control-Allow-Methods: POST, OPTIONS
-   Access-Control-Allow-Headers: Content-Type
-   ```
-6. Set HTTP Status to **200**
-7. Save and activate the workflow
+The proxy target defaults to `http://localhost:5678`. To use a different address, set `N8N_URL` in `.env.local`:
 
-**Without this CORS configuration, the frontend will fail with CORS errors!**
+```env
+N8N_URL=http://my-n8n-host:5678
+```
+
+> **Note for production**: The Vite proxy is a dev-only feature. For production deployments, either configure your web server (nginx, Caddy, etc.) to reverse-proxy `/webhook` requests to n8n, or set `VITE_API_URL` to the full n8n URL and configure CORS on n8n directly.
 
 ## Development
 
@@ -113,7 +104,8 @@ src/
 
 ### Endpoint
 
-- **URL**: `http://localhost:5678/webhook/seo-metadata-agent`
+- **Dev URL** (via Vite proxy): `/webhook/seo-metadata-agent` → proxied to `http://localhost:5678/webhook/seo-metadata-agent`
+- **Production URL**: configured via `VITE_API_URL` environment variable
 - **Method**: POST
 - **Headers**: Content-Type: application/json
 
@@ -202,7 +194,11 @@ Access to XMLHttpRequest at 'http://localhost:5678/webhook/seo-metadata-agent'
 from origin 'http://localhost:5173' has been blocked by CORS policy
 ```
 
-**Solution**: Ensure n8n has the OPTIONS webhook configured (see CORS Configuration above)
+This should not occur during development — the Vite proxy routes requests as same-origin.
+
+**Solution (development)**: Verify `npm run dev` is running and that `N8N_URL` in `.env.local` points to your n8n instance.
+
+**Solution (production)**: Configure your reverse proxy to forward `/webhook` requests to n8n, or set `VITE_API_URL` to the full n8n URL and configure CORS on n8n directly.
 
 ### Connection Refused
 ```
