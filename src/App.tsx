@@ -13,6 +13,7 @@ import CurrentMetadata from './CurrentMetadata';
 import VariationCard from './VariationCard';
 
 const API_URL = import.meta.env.VITE_API_URL || '';
+const WEBHOOK_PATH = import.meta.env.VITE_WEBHOOK_PATH || '/webhook/seo-metadata-agent';
 
 function App() {
   const [url, setUrl] = useState('');
@@ -27,7 +28,7 @@ function App() {
 
     try {
       const response = await axios.post(
-        `${API_URL}/webhook/seo-metadata-agent`,
+        `${API_URL}${WEBHOOK_PATH}`,
         { url, keyword }
       );
 

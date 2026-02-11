@@ -104,7 +104,14 @@ src/
 
 ### Endpoint
 
-- **Dev URL** (via Vite proxy): `/webhook/seo-metadata-agent` → proxied to `http://localhost:5678/webhook/seo-metadata-agent`
+The webhook path is controlled by `VITE_WEBHOOK_PATH` in `.env.local`:
+
+| n8n workflow state | Path |
+|---|---|
+| **Activated** (production toggle ON) | `/webhook/seo-metadata-agent` |
+| **Test/listen mode** (not activated) | `/webhook-test/seo-metadata-agent` |
+
+- **Dev URL** (via Vite proxy): `VITE_WEBHOOK_PATH` → proxied to `http://localhost:5678${VITE_WEBHOOK_PATH}`
 - **Production URL**: configured via `VITE_API_URL` environment variable
 - **Method**: POST
 - **Headers**: Content-Type: application/json
